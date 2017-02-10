@@ -1,4 +1,3 @@
-# from smarthome.pyHS100 import SmartPlug
 from pyHS100.pyHS100 import SmartPlug
 import logging
 import argparse
@@ -55,5 +54,9 @@ class SmartHome(object):
         return ips
 
 if __name__ == "__main__":
-    smart_home = SmartHome()
-    smart_home.perform_action()
+    try:
+        smart_home = SmartHome()
+        smart_home.perform_action()
+    except Exception as error:
+        print(str(error))
+    input("Press any key to quit.")
