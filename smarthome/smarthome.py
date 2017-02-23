@@ -1,7 +1,8 @@
-from pyHS100.pyHS100 import SmartPlug
+from pprint import pprint
 import logging
 import argparse
 import socket
+from pyHS100.pyHS100 import SmartPlug, TPLinkSmartHomeProtocol
 logging.basicConfig()
 LOGGER = logging.getLogger()
 LOGGER.setLevel(logging.INFO)
@@ -11,34 +12,42 @@ class SmartHome(object):
 
     def __init__(self):
         self.args = self.parse_args()
-        ips = self.args.target
-        LOGGER.info("Creating SmartPlug instance for IP: {}".format(ips))
+        devices = self.args.target
 
-        self.smart_plugs = []
-        for ip in ips:
-            self.smart_plugs.append(SmartPlug(ip))
+        if self.args.command == 'discovery':
+            self.discover_devices()
+
+        if devices:
+            self.smart_plugs = []
+            for device in devices:
+                LOGGER.debug("Creating SmartPlug instance for IP: {}".format(device))
+                self.perform_action(SmartPlug(device))
 
 
-    def perform_action(self):
-
+    def perform_action(self, smart_plug):
         command = self.args.command
 
-        for plug in self.smart_plugs:
+        try:
             if command.lower() == "off":
-                LOGGER.info("Turning SmartPlug: {} OFF".format(plug.mac))
-                plug.turn_off()
+                LOGGER.info("Turning SmartPlug: {} OFF".format(smart_plug.mac))
+                smart_plug.turn_off()
             elif command.lower() == "on":
-                LOGGER.info("Turning SmartPlug: {} ON".format(plug.mac))
-                plug.turn_on()
+                LOGGER.info("Turning SmartPlug: {} ON".format(smart_plug.mac))
+                smart_plug.turn_on()
+            elif command.lower() == 'status':
+                LOGGER.info("SmartPlug {} is: {}".format(smart_plug.mac, smart_plug.state))
             else:
                 raise RuntimeError("Unsupported command: {}".format(command))
+        except Exception as error:
+            LOGGER.error(error)
+            input("Press any key to continue.")
 
 
     def parse_args(self):
-        commands = ["on", "off"]
+        commands = ["on", "off", "status", "discovery"]
         # Parse commandline arguments
         parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Client")
-        parser.add_argument("-t", "--target", metavar="<ip>", required=True, help="Target IP Address", type=self.validIP)
+        parser.add_argument("-t", "--target", metavar="<ip>", help="Target IP Address", type=self.validIP)
         group = parser.add_mutually_exclusive_group(required=True)
         group.add_argument("-c", "--command", metavar="<command>", help="Preset command to send. Choices are: {}".format(commands))
         return parser.parse_args()
@@ -53,10 +62,12 @@ class SmartHome(object):
             LOGGER.error("Invalid IP Address.")
         return ips
 
+    def discover_devices(self):
+
+        devices = TPLinkSmartHomeProtocol.discover()
+        for device in devices:
+            LOGGER.info("Found SmartPlug: {}".format(device))
+
 if __name__ == "__main__":
-    try:
-        smart_home = SmartHome()
-        smart_home.perform_action()
-    except Exception as error:
-        print(str(error))
+    smart_home = SmartHome()
     input("Press any key to quit.")
