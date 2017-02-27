@@ -40,7 +40,6 @@ class SmartHome(object):
                 raise RuntimeError("Unsupported command: {}".format(command))
         except Exception as error:
             LOGGER.error(error)
-            input("Press any key to continue.")
 
 
     def parse_args(self):
@@ -70,4 +69,3 @@ class SmartHome(object):
 
 if __name__ == "__main__":
     smart_home = SmartHome()
-    input("Press any key to quit.")
