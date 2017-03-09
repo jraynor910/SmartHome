@@ -3,7 +3,7 @@ import os
 from pip.req import parse_requirements
 
 about = {}
-with open("SmartHome/__about__.py") as fp:
+with open("smarthome/__about__.py") as fp:
     exec(fp.read(), about)
 
 
