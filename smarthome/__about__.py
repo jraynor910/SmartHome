@@ -1,0 +1,7 @@
+__title__ = 'SmartHome'
+__package_name__ = 'smarthome'
+__author__ = 'Jeffrey Raynor'
+__description__ = 'Interface for TPLink HS100 Smart Plugs.'
+__email__ = 'Jeffrey.n.Raynor@gmail.com'
+__version__ = '0.0.1'
+__license__ = 'MIT'
